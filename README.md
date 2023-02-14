@@ -3,18 +3,16 @@
 ![logo](https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFhVIKHS77LnlY32T-ZIEsxpSBLUK6D0PRKg&usqp=CAU)
 
 ### **Задача:**  
-- разработать API сервис авторизации пользователей по логину и паролю соотвествующее принципам RESTFul.  
+- разработать API сервис авторизации пользователей по логину и паролю, соотвествующее принципам RESTFul.  
 - реализовать обработчик ошибок.
 - реализовать обработчик пользовательских параметров (@Аннотация)  
 - реализовать хранение базы данных IN MEMORY (Hibernate)
 #### *Дополнительное задание:*
-- при запросе на удаление пользовательские данные не удаляют, а помечают на удаление. 
-- добавить возможность авторизоваться из формы (1 форма на авторизацию и добавление/обновление)  
+- при запросе на удаление пользовательские данные не удаляют, а помечают на удаление, соответственно при запросе возвращаются данные, без отметки на удаление. 
+- добавить возможность авторизоваться из HTML-формы (1 общая форма на авторизацию и добавление/обновление)  
 - реализовать хранение базы данных на сервере Apache(NGINX) (PostgreSQL, MySQL)
 
-##### Примечание: web-сервер - серверадминистрирование MySQL - PhpMyAdmin 
-
-#### Ресурсы: 
+### Ресурсы: 
 Основная библиотека: **Spring-boot-starter-web**.
 
 1. для работы с базой данных используется библиотека `spring-boot-starter-data-jpa`, подключение:
@@ -101,4 +99,23 @@
     }
   }
 }
+```
+
+#### HTML-форма авторизации:
+
+```
+<form action="http://localhost:8085/restAPI/users/form" id="user-form">
+    <label for="id_login">введите логин</label>
+    <input name="login" placeholder="Login" id="id_login">
+    <label for="id_password">введите пароль</label>
+    <input name="password" placeholder="Password" id="id_password">
+    <br><br>
+    Authorities:
+    <input type="checkbox" name="authorities" value="READ" title="READ" required checked/>READ
+    <input type="checkbox" name="authorities" value="WRITE"/>WRITE
+    <input type="checkbox" name="authorities" value="DELETE"/>DELETE
+    <br><br>
+    <button id="get-button" formmethod="get">Login</button>
+    <button id="post-button" formmethod="post">Add User</button>
+</form>
 ```
