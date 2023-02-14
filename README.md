@@ -12,7 +12,7 @@
 - добавить возможность авторизоваться из формы (1 форма на авторизацию и добавление/обновление)  
 - реализовать хранение базы данных на сервере Apache(NGINX) (PostgreSQL, MySQL)
 
-##### Примечание: для ра. 
+##### Примечание: web-сервер - серверадминистрирование MySQL - PhpMyAdmin 
 
 #### Ресурсы: 
 Основная библиотека: **Spring-boot-starter-web**.
@@ -43,35 +43,62 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>       
+        </dependency>
         
-### Реализация.   
+5. Файл application.properties - настройки конфигурации проекта:  
+<code>server.port = 8085
+    #Set true for upload data during configuration class LoadDataBase
+    userTable.data.preload=false
+    #Comment this block if decided to use DB in H2:MEMORY
+    spring.jpa.hibernate.ddl-auto=update
+    spring.datasource.url=jdbc:mysql://${MYSQL_HOST:localhost}:3306/user_restfull_db
+    spring.datasource.username=root
+    spring.datasource.password=root
+    spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver</code>
+6. Форма для авторизации/добавления пользователя находится в /resources/static/user-form.html.      
+    
 
-| Класс      | Описание |
-| ----------- | ----------- |
-| `RestfullApplication`      | запуск SpringBoot приложения RestfullApplication |
-| `PageEntry`   | Класс, описывающий один элемент результата одного поиска. Он состоит из имени pdf-файла, номера страницы и количества раз(`count`), которое встретилось это слово на ней. Реализует интерфейс `Comparable` для сортировки.|
-| `SearchEngine`   | Интерфейс, описывающий поисковый движок, содержит 1 метод ` List<PageEntry> search(String request)`|
-| `BooleanSearchEngine`   | **Реализация поискового движка.** <ol><li>Движок ищет в тексте ровно то слово, которое было указано, без использования синонимов и прочих приёмов нечёткого поиска, независимо от регистра.</li><li>Для ускорения поиска используется **индексация** - предварительное сканирование файлов в конструкторе класса с сохранением информации для каждого слова в виде `List<PageEntry>`.</li><li>Для сохранения всех результатов индексации используется HashMap(ключ: слово, значение:`List<PageEntry>`).</li>  <li>Метод **search(String request)**  аккумулирует результаты поиска в Map через Collectors.toMap (элементы группируются по ключу: (имя файла:страница) у дубликатов суммируется значение поля count и возвращается 1-й элемент) и возвращает коллекцию значений `values() т.е List<PageEntry>` с итогами поиска</li>|
-| `Server`   | сервер, слушающий порт `8085`, на который приходят запросы. Ответ сервера - это результат вызова метода `search(request)`, в виде JSON-текста |
+## Реализация. 
 
-Пример ответа на запрос:
+### Web-сервер - Apache, cервер базы данных - MySQL, администрирование - PhpMyAdmin.
+
+| **Класс** | **Описание** |
+| --------- | ----------- |
+| `RestfullApplication` | Запуск SpringBoot приложения |
+| **Основные классы** |
+| `UserController`| Класс-обработчик end-point'ов. |
+| `UserService`| Класс, реализующий основную логику обработки данных. |
+| `UserRepository`| `Interface`  для храния данных, наследует `JpaRepository`. |
+| **Классы данных** |
+| `User`| Класс , описывающий модель пользователя. |
+| `Authorities`| Класс Enum, описывающий перечень прав пользователя. |
+| `UserModelAssembler`| Класс , реализующий представление ответа в формате RESTFul. |
+| **Классы конфигурации** |
+| `LoadDataBase`| Реализует предзагрузку БД, если userTable.data.preload=true. |
+| `WebMvcConfig`| Добавляет в конфигурацию обработчик пользовательских параметров (@UserParam) `MyHandlerMethodArgumentResolver` |
+| **Классы обработки аннотаций** |
+| `MyHandlerMethodArgumentResolver`| Класс-обработчик пользовательских параметров (@UserParam). |
+| **Классы обработки исключений** |
+| `exeption`| Package пользовательских исключений. Описывает 3 класса исключений: `UnauthorizedUser`, `NotFoundException`, `InvalidCredentials` |
+| `ExceptionHandlerAdvice`| Класс-обработчик исключений. |
+
+#### Пример ответа на запрос:
 ```json
-[
-  {
-    "pdfName": "Этапы оценки проекта_ понятия, методы и полезные инструменты.pdf",
-    "page": 12,
-    "count": 6
-  },
-  {
-    "pdfName": "Этапы оценки проекта_ понятия, методы и полезные инструменты.pdf",
-    "page": 4,
-    "count": 3
-  },
-  {
-    "pdfName": "Этапы оценки проекта_ понятия, методы и полезные инструменты.pdf",
-    "page": 5,
-    "count": 3
+{
+  "id": 1,
+  "login": "user1",
+  "password": "admin",
+  "authorities": [
+    "READ",
+    "WRITE"
+  ],
+  "_links": {
+    "self": {
+      "href": "http://localhost:8085/restAPI/users/1"
+    },
+    "/restAPI/users": {
+      "href": "http://localhost:8085/restAPI/users"
+    }
   }
-]
+}
 ```
