@@ -43,7 +43,14 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         
-5. Файл application.properties - настройки конфигурации проекта:  
+5. для представление ответа, соответствующего принципам RESTFul, используется библиотека `Hateoas`, подключение:
+        
+        <dependency>
+           <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-hateoas</artifactId>
+        </dependency>
+        
+6. Файл application.properties - настройки конфигурации проекта:  
 <code>server.port = 8085
     #Set true for upload data during configuration class LoadDataBase
     userTable.data.preload=false
@@ -53,7 +60,7 @@
     spring.datasource.username=root
     spring.datasource.password=root
     spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver</code>
-6. Форма для авторизации/добавления пользователя находится в /resources/static/user-form.html.      
+7. Форма для авторизации/добавления пользователя находится в /resources/static/user-form.html.      
     
 
 ## Реализация. 
