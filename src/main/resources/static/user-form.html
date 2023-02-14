@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Authorization</title>
+</head>
+<body>
+<h2>Авторизоваться или добавить нового пользователя</h2><br><br>
+<form action="http://localhost:8085/restAPI/users/form" id="user-form">
+    <label for="id_login">введите логин</label>
+    <input name="login" placeholder="Login" id="id_login">
+    <label for="id_password">введите пароль</label>
+    <input name="password" placeholder="Password" id="id_password">
+    <br><br>
+    Authorities:
+    <input type="checkbox" name="authorities" value="READ" title="READ" required checked/>READ
+    <input type="checkbox" name="authorities" value="WRITE"/>WRITE
+    <input type="checkbox" name="authorities" value="DELETE"/>DELETE
+    <br><br>
+    <button id="get-button" formmethod="get">Login</button>
+    <button id="post-button" formmethod="post">Add User</button>
+</form>
+</body>
+</html>
