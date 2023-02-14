@@ -14,28 +14,42 @@
 
 ##### Примечание: для ра. 
 
-#### Ресурсы:
- 1. для работы с базой данных используется библиотека `pring-boot-starter-data-jpa`, подключение:
+#### Ресурсы: 
+Основная библиотека: **Spring-boot-starter-web**.
+
+1. для работы с базой данных используется библиотека `spring-boot-starter-data-jpa`, подключение:
+ 
        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
+        
 2. для хранения базы данных IN MEMORY используется библиотека `Hibernate`, подключение:
-       <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>  
-Основные инструменты  этой библиотеки:
-* Cоздать объект pdf-документа `var doc = new PdfDocument(new PdfReader(pdf))`.
-* Узнать количество  страниц в pdf-документе ` var pages= doc.getNumberOfPages()`.
-* Получить объект одной страницы pdf-документа `var page = doc.getPage(номерСтраницы)`.
-* Получить текст со pdf-страницы `var text = PdfTextExtractor.getTextFromPage(page);`.
 
+       <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+        </dependency> 
+        
+3. для хранения базы данных на сервере используется библиотека `mysql-connector-j`, подключение:
+
+        <dependency>
+            <groupId>com.mysql</groupId>
+            <artifactId>mysql-connector-j</artifactId>
+        </dependency> 
+        
+4. для валидации пользовательских параметров используется библиотека `spring-boot-starter-validation`, подключение:
+        
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>       
+        
 ### Реализация.   
 
 | Класс      | Описание |
 | ----------- | ----------- |
-| `Main`      | запуск сервера, обслуживающего поисковые запросы|
+| `RestfullApplication`      | запуск SpringBoot приложения RestfullApplication |
 | `PageEntry`   | Класс, описывающий один элемент результата одного поиска. Он состоит из имени pdf-файла, номера страницы и количества раз(`count`), которое встретилось это слово на ней. Реализует интерфейс `Comparable` для сортировки.|
 | `SearchEngine`   | Интерфейс, описывающий поисковый движок, содержит 1 метод ` List<PageEntry> search(String request)`|
 | `BooleanSearchEngine`   | **Реализация поискового движка.** <ol><li>Движок ищет в тексте ровно то слово, которое было указано, без использования синонимов и прочих приёмов нечёткого поиска, независимо от регистра.</li><li>Для ускорения поиска используется **индексация** - предварительное сканирование файлов в конструкторе класса с сохранением информации для каждого слова в виде `List<PageEntry>`.</li><li>Для сохранения всех результатов индексации используется HashMap(ключ: слово, значение:`List<PageEntry>`).</li>  <li>Метод **search(String request)**  аккумулирует результаты поиска в Map через Collectors.toMap (элементы группируются по ключу: (имя файла:страница) у дубликатов суммируется значение поля count и возвращается 1-й элемент) и возвращает коллекцию значений `values() т.е List<PageEntry>` с итогами поиска</li>|
