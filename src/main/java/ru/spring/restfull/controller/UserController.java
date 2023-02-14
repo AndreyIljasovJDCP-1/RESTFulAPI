@@ -14,7 +14,6 @@ import ru.spring.restfull.service.UserService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.List;
 
 @RestController
 @Validated
@@ -23,56 +22,67 @@ public class UserController {
     @Autowired
     UserService userService;
 
-        @GetMapping
-    public List<User> all() {
-        return userService.all();
+    @Autowired
+    UserModelAssembler assembler;
+
+
+    //migrate to RESTFULL
+    @GetMapping
+    public CollectionModel<EntityModel<User>> all() {
+        return assembler.toCollectionModel(userService.all());
     }
 
     @GetMapping("/admin")
-    public List<User> admin() {
-        return userService.admin();
+    public CollectionModel<EntityModel<User>> admin() {
+        return assembler.toCollectionModel(userService.admin());
     }
+
     @GetMapping("/admin/removed")
-    public List<User> getRemoved() {
-        return userService.getRemoved();
+    public CollectionModel<EntityModel<User>> getRemoved() {
+        return assembler.toCollectionModel(userService.getRemoved());
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable @Min(1) long id) {
-        return userService.getById(id);
+    public EntityModel<User> getById(@PathVariable @Min(1) long id) {
+        return assembler.toModel(userService.getById(id));
     }
 
     @DeleteMapping("/{id}")
-    public User removeById(@PathVariable @Min(1) long id) {
-        return userService.removeById(id);
+    public EntityModel<User> removeById(@PathVariable @Min(1) long id) {
+        return assembler.toModel(userService.removeById(id));
     }
 
     @PostMapping
-    public User saveUser(@RequestBody @Valid User user) {
-        return userService.save(user);
+    public ResponseEntity<?> saveUser(@RequestBody @Valid User user) {
+        var entityModel = assembler.toModel(userService.save(user));
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
     }
 
     @PostMapping("/{id}")
-    public User restoreUser(@RequestBody @Valid User checkUser,
-                            @PathVariable @Min(1) Long id) {
-        return userService.restore(checkUser, id);
+    public ResponseEntity<?> restoreUser(@RequestBody @Valid User checkUser,
+                                         @PathVariable @Min(1) Long id) {
+        var entityModel = assembler.toModel(userService.restore(checkUser, id));
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
     }
 
     @PutMapping("/{id}")
-    public User updateUser(@RequestBody @Valid User newUser,
-                           @PathVariable @Min(1) Long id) {
-        return userService.replace(newUser, id);
+    public ResponseEntity<?> updateUser(@RequestBody @Valid User newUser,
+                                        @PathVariable @Min(1) Long id) {
+        var entityModel = assembler.toModel(userService.replace(newUser, id));
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri())
+                .body(entityModel);
     }
 
+    // из одной формы
     @PostMapping("/form")
-    public User saveUserFromForm(@UserParam User user) {
-        return userService.save(user);
+    public EntityModel<User> saveUserFromForm(@UserParam User user) {
+        return assembler.toModel(userService.save(user));
     }
 
     @GetMapping("/form")
-    public User getUserFromForm(@UserParam User user) {
-        return userService.findByLoginAndPassword(user);
+    public EntityModel<User> getUserFromForm(@UserParam User user) {
+        return assembler.toModel(userService.findByLoginAndPassword(user));
     }
-
-
 }
