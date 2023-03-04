@@ -26,7 +26,7 @@ public class User {
     private String password;
 
     @Column
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     @ElementCollection(targetClass = Authorities.class)
     @NotEmpty(message = "User.class error: поле Authorities не должно быть пустым")
     private List<Authorities> authorities;
